@@ -230,6 +230,9 @@ const oppositeDir = key === 39 ? 37 :
              null
  if (currentDir === oppositeDir) return;
         else {
+            //default moving sound
+            moveAudio.currentTime = 0;
+            moveAudio.play();
           //Increase snake speed according to the score
           if (score > 0 && score%10===0 && !scoresAchieved.includes(score)) {
             scoresAchieved.push(score);
