@@ -5,9 +5,12 @@ body{
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  background-color:rgba(70,80,10,0.8);
+  background-image: url("./img/bg.png");
 }
 table{
-  border: 1px solid black;
+  background:rgba(255,255,255,0.6);
+  border-radius:20px;
 }
 td{
   width:35px;

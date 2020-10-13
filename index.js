@@ -90,7 +90,7 @@ for (let i = 0; i < snake.length; i++) {
 //.....Restart:
 buttonRestart.onclick = () => {
   loseDiv.style.display="none";
-  table.style.display="block";
+  tableContainer.style.display="block";
   losingState = false;
   gameState = true;
   music.currentTime = 0;
@@ -113,6 +113,7 @@ buttonRestart.onclick = () => {
   foodIdxs = []; //Resets food indexes
   time = 150;
   score = 0;
+  drawScore(score);
   moveSnake(); // redraws the snake
   //Start to move the snake
   createSnakeInterval(); //Start snake auto move
@@ -135,7 +136,7 @@ const moveSnake = (function () {
 //---------------------------------------------------------
 function createSnakeInterval() {
   snakeInterval = setInterval(() => {
-    switchCase(currentDir);
+    handleDirectionChange(currentDir);
   },time);
 }
 
@@ -212,12 +213,12 @@ function keyUpHandler(ev) {
       : key === 40
       ? "DOWN"
       : null;
-  switchCase(key);
+  handleDirectionChange(key);
 }
 
 //------------------------------------------------------
 //Main snake moving logic
-function switchCase(key){
+function handleDirectionChange(key){
 const edge = key === 39 ? rightEdgeIdxs :
              key === 37 ? leftEdgeIdxs :
              key === 38 ? topEdgeIdxs :
@@ -251,7 +252,7 @@ const oppositeDir = key === 39 ? 37 :
               if (edge.includes(snakeIdxs[i])) {
                 losingState = true;
                 lose.play();
-               table.style.display="none";
+               tableContainer.style.display="none";
                 loseDiv.style.display="block";
                 buttonStop.dispatchEvent(new Event("click"));
                 return;
@@ -276,6 +277,7 @@ const oppositeDir = key === 39 ? 37 :
                 snake.unshift(bodySnakePart);
                 snakeIdxs.unshift(snakeIdxs[0]-1);
                 cells[snakeIdxs[0]].appendChild(snake[0]);
+                //Drawing food and score
                 drawFoodToCells();
                 drawScore(score);
               }
