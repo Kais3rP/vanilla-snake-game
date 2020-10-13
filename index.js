@@ -4,8 +4,12 @@ const buttonStart = document.getElementById("start");
 const buttonRestart = document.getElementById("reset");
 const keysDiv = document.getElementById("keys");
 const scoreDiv = document.getElementById("score");
+const speedDiv = document.getElementById("speed");
 //-------------------------------
+
 let score = 0;
+let scoresAchieved = [];
+let time = 150; //Snake redraw time interval in ms
 const rows = 14;
 const cols = 25;
 const randomCellIdx = () => Math.ceil(Math.random() * rows * cols) - 1;
@@ -22,8 +26,8 @@ for (let i = 0; i < cols * rows; i++) {
     rightEdgeIdxs.push(i);
   if (i % cols === 0) leftEdgeIdxs.push(i);
 }
-//console.log(leftEdgeIdxs)
 //---------------------------------------------------------------------
+//Intializing global intervals
 let snakeInterval;
 let foodInterval;
 //---------------------------------
@@ -32,39 +36,49 @@ let allFoodsEmojs = `🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮
 allFoodsEmojs = allFoodsEmojs.split(" ");
 const randomFoodIdx = () => Math.ceil(Math.random() * allFoodsEmojs.length) - 1;
 let foodIdxs = []; // Array with cells indexes of foods
-let foodEmojs = [];
 //---------------------------------
 //Snake props
 let snake = []; //DOM elements
 let snakeLength = 5;
 let currentDir = 39;
 let snakeIdxs = [0, 1, 2, 3, 4];
-//------------------------------------
-//stop:
+
+//---------------------------------------------------------------------------------------
+//Table creation
+createTable(rows, cols, "");
+const cells = document.querySelectorAll("td");
+//------------------------------------ 
+//Event listeners buttons:
+//.....stop:
 buttonStop.onclick = () => {
+  window.removeEventListener("keyup", keyUpHandler);
   clearInterval(snakeInterval);
   clearInterval(foodInterval);
-  window.removeEventListener("keyup", keyUpHandler);
 };
-//start:
+//.....start:
 buttonStart.onclick = () => {
   window.addEventListener("keyup", keyUpHandler);
+  createSnake(snakeLength); //Draw the snake on start
+  //Append the snake to the default starting cells
+for (let i = 0; i < snake.length; i++) {
+  cells[i].appendChild(snake[i]);
+}
   //Start to move the snake
   createSnakeInterval();
   createFoodInterval();
 };
-//Restart:
+//.....Restart:
 buttonRestart.onclick = () => {
   //counter = 0;
   clearInterval(snakeInterval);
   clearInterval(foodInterval);
   window.addEventListener("keyup", keyUpHandler);
-  currentDir = 39;
+  currentDir = 39;//Reinitialize the default direction
   //Remove all extra snake body parts from cells
   for ( let i = 0; i < snake.length; i++){
     cells[snakeIdxs[i]].removeChild(cells[snakeIdxs[i]].firstChild)
   }
-  snake = [];
+  snake = []; //Reset the snake divs array
   snakeIdxs = [0,1,2,3,4]; // resets the snake indexes
   snakeLength = 5; // resets the snake length
   createSnake(snakeLength);
@@ -72,24 +86,16 @@ buttonRestart.onclick = () => {
   for (let cell of cells)
     cell.innerText = "";
   foodIdxs = []; //Resets food indexes
+  time = 150;
+  score = 0;
   moveSnake(); // redraws the snake
   //Start to move the snake
-  createSnakeInterval();
-  createFoodInterval();
-  
+  createSnakeInterval(); //Start snake auto move
+  createFoodInterval();  //Start food generation
 };
 
-//---------------------------------------------------------------------------------------
-//Snake initialization and table creation
-createTable(rows, cols, "");
-createSnake(snakeLength);
-drawScore(score);
-//Append the snake to the default starting cells
-const cells = document.querySelectorAll("td");
-for (let i = 0; i < snake.length; i++) {
-  cells[i].appendChild(snake[i]);
-}
 
+//...................Functions.....................
 // Redrawing the snake logic
 //----------------------------------------------
 const moveSnake = (function () {
@@ -104,8 +110,8 @@ const moveSnake = (function () {
 //---------------------------------------------------------
 function createSnakeInterval() {
   snakeInterval = setInterval(() => {
-    switchIdxs(currentDir);
-  }, 130);
+    switchCase(currentDir);
+  },time);
 }
 
 //---------------------------------------------------------
@@ -116,7 +122,7 @@ function createFoodInterval() {
   }, 3000);
 }
 //---------------------------------------------------------------
-
+//Food drawing
 function drawFoodToCells() {
   let newFoodIdx = Math.ceil(Math.random() * rows * cols) - 1;
   while (foodIdxs.includes(newFoodIdx))
@@ -156,190 +162,6 @@ function createSnake(length) {
   }
 }
 
-//---------------------------------------------------------------
-//Main switch direction logic
-function switchIdxs(key) {
-  switch (key) {
-    case 39:
-      {
-        if (currentDir === 37) return;
-        else {
-          currentDir = key;
-          previousIdx = 0;
-          previousIdxTemp = 0;
-          for (let i = snakeLength - 1; i >= 0; i--) {
-            if (i === snakeLength - 1) {
-              //Checks if it's at the edge
-              if (rightEdgeIdxs.includes(snakeIdxs[i])) {
-                alert("You lost");
-                buttonStop.dispatchEvent(new Event("click"));
-                return;
-              }
-            
-              previousIdx = snakeIdxs[i];
-              snakeIdxs[i] += 1;
-                //Checks if there's food to eat on cell
-              if (foodIdxs.includes(snakeIdxs[i])) {
-                score++;
-                foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
-                cells[snakeIdxs[i]].innerText = "";
-                //Increase snake length
-                snakeLength++;
-                const bodySnakePart = document.createElement("div");
-                bodySnakePart.classList.add("snake");
-                snake.unshift(bodySnakePart);
-                console.log("snakeIdxs before:",snakeIdxs)
-                snakeIdxs.unshift(snakeIdxs[0]-1);
-                cells[snakeIdxs[0]].appendChild(snake[0]);
-                drawFoodToCells();
-                drawScore(score);
-                console.log("snakeIdxs after:",snakeIdxs)
-              }
-            } else {
-              previousIdxTemp = snakeIdxs[i];
-              snakeIdxs[i] = previousIdx;
-              previousIdx = previousIdxTemp;
-            }
-          }
-        }
-        moveSnake();
-      }
-      break;
-    case 37:
-      {
-        if (currentDir === 39) return;
-        else {
-          currentDir = key;
-          previousIdx = 0;
-          previousIdxTemp = 0;
-          for (let i = snakeLength - 1; i >= 0; i--) {
-            if (i === snakeLength - 1) {
-              //Checks if it's at the edge
-              if (leftEdgeIdxs.includes(snakeIdxs[i])) {
-                alert("You lost");
-                buttonStop.dispatchEvent(new Event("click"));
-                return;
-              }
-            
-              previousIdx = snakeIdxs[i];
-              snakeIdxs[i] -= 1;
-                //Checks if there's food to eat on cell
-              if (foodIdxs.includes(snakeIdxs[i])) {
-                score++;
-                foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
-                cells[snakeIdxs[i]].innerText = "";
-                  //Increase snake length
-                snakeLength++;
-                const bodySnakePart = document.createElement("div");
-                bodySnakePart.classList.add("snake");
-                snake.unshift(bodySnakePart);
-                snakeIdxs.unshift(snakeIdxs[0]-1);
-                cells[snakeIdxs[0]].appendChild(snake[0]);
-                drawFoodToCells();
-                drawScore(score);
-                console.log("snake length:",snake.length)
-              }
-            } else {
-              previousIdxTemp = snakeIdxs[i];
-              snakeIdxs[i] = previousIdx;
-              previousIdx = previousIdxTemp;
-            }
-          }
-        }
-        moveSnake();
-      }
-      break;
-    case 38:
-      {
-        if (currentDir === 40) return;
-        else {
-          currentDir = key;
-          previousIdx = 0;
-          previousIdxTemp = 0;
-          for (let i = snakeLength - 1; i >= 0; i--) {
-            if (i === snakeLength - 1) {
-              //Checks if it's at the edge
-              if (topEdgeIdxs.includes(snakeIdxs[i])) {
-                alert("You lost");
-                buttonStop.dispatchEvent(new Event("click"));
-                return;
-              }
-             
-              previousIdx = snakeIdxs[i];
-              snakeIdxs[i] -= cols;
-               //Checks if there's food to eat on cell
-              if (foodIdxs.includes(snakeIdxs[i])) {
-                score++;
-                foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
-                cells[snakeIdxs[i]].innerText = "";
-                  //Increase snake length
-                snakeLength++;
-                const bodySnakePart = document.createElement("div");
-                bodySnakePart.classList.add("snake");
-                snake.unshift(bodySnakePart);
-                snakeIdxs.unshift(snakeIdxs[0]-1);
-                cells[snakeIdxs[0]].appendChild(snake[0]);
-                drawFoodToCells();
-                drawScore(score);
-                console.log("snake length:",snake.length)
-              }
-            } else {
-              previousIdxTemp = snakeIdxs[i];
-              snakeIdxs[i] = previousIdx;
-              previousIdx = previousIdxTemp;
-            }
-          }
-        }
-        moveSnake();
-      }
-      break;
-    case 40:
-      {
-        if (currentDir === 38) return;
-        else {
-          currentDir = key;
-          previousIdx = 0;
-          previousIdxTemp = 0;
-          for (let i = snakeLength - 1; i >= 0; i--) {
-            if (i === snakeLength - 1) {
-              //Checks if it's at the edge
-              if (bottomEdgeIdxs.includes(snakeIdxs[i])) {
-                alert("You lost");
-                buttonStop.dispatchEvent(new Event("click"));
-                return;
-              }
-            
-              previousIdx = snakeIdxs[i];
-              snakeIdxs[i] += cols;
-                //Checks if there's food to eat on cell
-              if (foodIdxs.includes(snakeIdxs[i])) {
-                score++;
-                foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
-                cells[snakeIdxs[i]].innerText = "";
-                  //Increase snake length
-                snakeLength++;
-                const bodySnakePart = document.createElement("div");
-                bodySnakePart.classList.add("snake");
-                snake.unshift(bodySnakePart);
-                snakeIdxs.unshift(snakeIdxs[0]-1);
-                cells[snakeIdxs[0]].appendChild(snake[0]);
-                drawFoodToCells();
-                drawScore(score);
-                console.log("snake length:",snake.length)
-              }
-            } else {
-              previousIdxTemp = snakeIdxs[i];
-              snakeIdxs[i] = previousIdx;
-              previousIdx = previousIdxTemp;
-            }
-          }
-        }
-        moveSnake();
-      }
-      break;
-  }
-}
-
 //---------------------------------------------------------------------------------------
 //Keyboard event handler
 
@@ -367,9 +189,83 @@ function keyUpHandler(ev) {
       : key === 40
       ? "DOWN"
       : null;
-  switchIdxs(key);
+  switchCase(key);
 }
 
+//------------------------------------------------------
+//Main snake moving logic
+function switchCase(key){
+const edge = key === 39 ? rightEdgeIdxs :
+             key === 37 ? leftEdgeIdxs :
+             key === 38 ? topEdgeIdxs :
+             key === 40 ? bottomEdgeIdxs :
+             null
+const oppositeDir = key === 39 ? 37 :
+             key === 37 ? 39 :
+             key === 38 ? 40 :
+             key === 40 ? 38 :
+             null
+ if (currentDir === oppositeDir) return;
+        else {
+          //Increase snake speed according to the score
+          if (score > 0 && score%10===0 && !scoresAchieved.includes(score)) {
+            scoresAchieved.push(score);
+            console.log(score,time)
+            time-=10;
+            clearInterval(snakeInterval);
+            createSnakeInterval();
+            drawSpeed(time);
+          }
+          currentDir = key;
+          previousIdx = 0;
+          previousIdxTemp = 0;
+          for (let i = snakeLength - 1; i >= 0; i--) {
+            if (i === snakeLength - 1) {
+              //Checks if it's at the edge
+              if (edge.includes(snakeIdxs[i])) {
+                alert("You lost");
+                buttonStop.dispatchEvent(new Event("click"));
+                return;
+              }
+            
+              previousIdx = snakeIdxs[i];
+              snakeIdxs[i] = key === 39 ? snakeIdxs[i]+1 :
+             key === 37 ? snakeIdxs[i] - 1 :
+             key === 38 ? snakeIdxs[i] - cols :
+             key === 40 ? snakeIdxs[i] + cols :
+             null;
+                //Checks if there's food to eat on cell
+              if (foodIdxs.includes(snakeIdxs[i])) {
+                score++;
+                foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
+                cells[snakeIdxs[i]].innerText = "";
+                //Increase snake length
+                snakeLength++;
+                const bodySnakePart = document.createElement("div");
+                bodySnakePart.classList.add("snake");
+                snake.unshift(bodySnakePart);
+                snakeIdxs.unshift(snakeIdxs[0]-1);
+                cells[snakeIdxs[0]].appendChild(snake[0]);
+                drawFoodToCells();
+                drawScore(score);
+              }
+            } else {
+              previousIdxTemp = snakeIdxs[i];
+              snakeIdxs[i] = previousIdx;
+              previousIdx = previousIdxTemp;
+            }
+          }
+        }
+        moveSnake();
+}
+//UI info function
+//--------------------------------------------------------
 function drawScore(score) {
   scoreDiv.innerText = score;
+}
+//----------------------------------------------------------
+function drawSpeed(time){
+  
+  const speed = ((time-150)*(-1)) -4;
+  speedDiv.innerText = speed;
 }
