@@ -5,8 +5,18 @@ const buttonRestart = document.getElementById("reset");
 const keysDiv = document.getElementById("keys");
 const scoreDiv = document.getElementById("score");
 const speedDiv = document.getElementById("speed");
+const tableContainer = document.getElementById("table-container");
+const table = document.querySelector("table");
+const loseDiv = document.getElementById("lose-div");
+const music = document.getElementById("music");
+const loseAudio = document.getElementById("lose");
+const pigAudio = document.getElementById("pig");
+const catAudio = document.getElementById("cat");
+const moveAudio = document.getElementById("move");
 //-------------------------------
 
+let gameState = false;
+let losingState = false;
 let score = 0;
 let scoresAchieved = [];
 let time = 150; //Snake redraw time interval in ms
@@ -45,18 +55,28 @@ let snakeIdxs = [0, 1, 2, 3, 4];
 
 //---------------------------------------------------------------------------------------
 //Table creation
-createTable(rows, cols, "");
+populateTable(table, rows, cols, "");
 const cells = document.querySelectorAll("td");
+
+//Showing the right buttons
 //------------------------------------ 
+//document.addEventListeners()
 //Event listeners buttons:
 //.....stop:
 buttonStop.onclick = () => {
+  if (!gameState) return;
+  gameState = false;
+  music.pause();
   window.removeEventListener("keyup", keyUpHandler);
   clearInterval(snakeInterval);
   clearInterval(foodInterval);
 };
 //.....start:
 buttonStart.onclick = () => {
+  
+  if (gameState || losingState) return;
+  gameState=true;
+  music.play();
   window.addEventListener("keyup", keyUpHandler);
   createSnake(snakeLength); //Draw the snake on start
   //Append the snake to the default starting cells
@@ -69,7 +89,12 @@ for (let i = 0; i < snake.length; i++) {
 };
 //.....Restart:
 buttonRestart.onclick = () => {
-  //counter = 0;
+  loseDiv.style.display="none";
+  table.style.display="block";
+  losingState = false;
+  gameState = true;
+  music.currentTime = 0;
+  music.play();
   clearInterval(snakeInterval);
   clearInterval(foodInterval);
   window.addEventListener("keyup", keyUpHandler);
@@ -135,9 +160,7 @@ function drawFoodToCells() {
 
 //---------------------------------------------------------
 // Table generation
-function createTable(rowsNum, colsNum, content) {
-  const table = document.createElement("table");
-  document.body.appendChild(table);
+function populateTable(table, rowsNum, colsNum, content) {
   for (let i = 0; i < rowsNum; i++) {
     const tr = document.createElement("tr");
     table.appendChild(tr);
@@ -223,11 +246,14 @@ const oppositeDir = key === 39 ? 37 :
             if (i === snakeLength - 1) {
               //Checks if it's at the edge
               if (edge.includes(snakeIdxs[i])) {
-                alert("You lost");
+                losingState = true;
+                lose.play();
+               table.style.display="none";
+                loseDiv.style.display="block";
                 buttonStop.dispatchEvent(new Event("click"));
                 return;
               }
-            
+            //Moves the first cell
               previousIdx = snakeIdxs[i];
               snakeIdxs[i] = key === 39 ? snakeIdxs[i]+1 :
              key === 37 ? snakeIdxs[i] - 1 :
@@ -236,6 +262,7 @@ const oppositeDir = key === 39 ? 37 :
              null;
                 //Checks if there's food to eat on cell
               if (foodIdxs.includes(snakeIdxs[i])) {
+                playAnimalSound(cells[snakeIdxs[i]].innerText);
                 score++;
                 foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
                 cells[snakeIdxs[i]].innerText = "";
@@ -268,4 +295,11 @@ function drawSpeed(time){
   
   const speed = ((time-150)*(-1)) -4;
   speedDiv.innerText = speed;
+}
+//------------------------------------------------------------
+function playAnimalSound(emoj){
+  console.log(emoj)
+ let emojes =  `🐷 🐽 🐸 🐵 🙈 🙉 🙊 🐒 🐔 🐧 🐦 🐤 🐣 🐥 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🕸 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩`.split(' ');
+  emojes.includes(emoj) ? pig.play()
+  : cat.play()
 }
