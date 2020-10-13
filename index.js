@@ -17,9 +17,11 @@ const moveAudio = document.getElementById("move");
 
 let gameState = false;
 let losingState = false;
+let firstStart = true;
 let score = 0;
 let scoresAchieved = [];
 let time = 150; //Snake redraw time interval in ms
+let speed = 1;
 const rows = 14;
 const cols = 25;
 const randomCellIdx = () => Math.ceil(Math.random() * rows * cols) - 1;
@@ -78,11 +80,14 @@ buttonStart.onclick = () => {
   gameState=true;
   music.play();
   window.addEventListener("keyup", keyUpHandler);
+  if (firstStart){
+    firstStart = false;
   createSnake(snakeLength); //Draw the snake on start
   //Append the snake to the default starting cells
 for (let i = 0; i < snake.length; i++) {
   cells[i].appendChild(snake[i]);
 }
+  }
   //Start to move the snake
   createSnakeInterval();
   createFoodInterval();
@@ -113,7 +118,9 @@ buttonRestart.onclick = () => {
   foodIdxs = []; //Resets food indexes
   time = 150;
   score = 0;
+  speed = 1;
   drawScore(score);
+  drawSpeed(speed);
   moveSnake(); // redraws the snake
   //Start to move the snake
   createSnakeInterval(); //Start snake auto move
@@ -237,11 +244,11 @@ const oppositeDir = key === 39 ? 37 :
           //Increase snake speed according to the score
           if (score > 0 && score%10===0 && !scoresAchieved.includes(score)) {
             scoresAchieved.push(score);
-            console.log(score,time)
+            speed++;
             time-=10;
             clearInterval(snakeInterval);
             createSnakeInterval();
-            drawSpeed(time);
+            drawSpeed(speed);
           }
           currentDir = key;
           previousIdx = 0;
@@ -296,9 +303,7 @@ function drawScore(score) {
   scoreDiv.innerText = score;
 }
 //----------------------------------------------------------
-function drawSpeed(time){
-  
-  const speed = ((time-150)*(-1)) -4;
+function drawSpeed(speed){
   speedDiv.innerText = speed;
 }
 //------------------------------------------------------------

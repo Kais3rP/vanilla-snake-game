@@ -1,30 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap");
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
 body{
   margin:0;
-  min-height:100vh;
+  height:100vh;
+  width:100vw;
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:space-around;
   align-items:center;
   background-color:rgba(70,80,10,0.8);
   background-image: url("./img/bg.png");
+  font-family: 'Rock Salt';
+}
+
+#info{
+  background:linear-gradient(rgba(100,50,10,0.5),rgba(70,80,10,0.5));
+  color:white;
+  padding:35px;
+  border-radius:25px;
+}
+#info-game{
+  width:40%;
+  min-width:600px;
+  background:rgba(255,255,255,0.6);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-radius:20px;
+  font-weight:bold;
+}
+#table-container{ 
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-end;
 }
 table{
+  width:1000px;
   background:rgba(255,255,255,0.6);
   border-radius:20px;
+  font-family: Arial;
 }
 td{
-  width:35px;
-  height:35px;
-  border:1px solid rgba(0,0,0,0.01);
-  font-size:25px;
+  width:40px;
+  height:40px;
+  border:1px solid rgba(0,0,0,0.02);
+  font-size:20px;
   position:relative;
 }
 
 .snake{
   width:95%;
   height:95%;
-  background:red;
-  border: 1px solid black;
+  background:rgba(70,80,10,1);;
+  border: 1px solid green;
   position:absolute;
   top:0;
   left:0;
@@ -32,19 +66,39 @@ td{
 }
 
 #controls{
+  width:40%;
+  min-width:400px;
   display:flex;
-  justify-content:center;
+  justify-content:space-around;
   align-items:center;
 }
 
 button{
   padding:3px;
-  color:violet;
-  width:100%;
+  background-color:rgba(100,50,10,1);
+  border:none;
+  border-radius:10px;
+  color:white;
+  width:120px;
   height:60px;
   font-size:20px;
+  cursor:pointer;
+}
+button:hover{
+  background:rgba(100,50,10,0.8);
 }
 
 #lose-div{
   display:none;
+  color:rgba(100,50,10,1);
+  font-family:Helvetica;
+  font-size:80px;
+  text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+}
+
+#footer{
+  width:50%;
+  color:grey;
+  font-family:Helvetica;
+  
 }
