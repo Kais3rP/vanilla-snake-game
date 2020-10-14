@@ -76,14 +76,17 @@ table{
   border-radius:20px;
   font-family: Arial;
   border: 20px inset violet;
+  table-layout:fixed;
   
 }
 td{
   width:40px;
   height:40px;
   border:1px solid rgba(0,0,0,0.02);
-  font-size:20px;
+  font-size:25px;
   position:relative;
+  overflow:hidden;
+  text-align:center;
 }
 
 .snake{

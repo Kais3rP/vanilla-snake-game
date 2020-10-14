@@ -18,7 +18,7 @@ const audioArray = document.querySelectorAll("audio");
 const selfCollideInput = document.getElementById("self-collide");
 const soundInput = document.getElementById("sound");
 const volumeInput = document.getElementById("volume");
-const speedInput = document.getElementById("speed");
+const speedInput = document.getElementById("speed-input");
 //-------------------------------------------------------------------
 
 let gameState = false;
@@ -259,7 +259,6 @@ function keyUpHandler(ev) {
 //------------------------------------------------------
 //Main snake moving logic
 function handleDirectionChange(key) {
-  console.log("Self Collision:", selfCollide);
   const edge = key === 39 ? rightEdgeIdxs :
     key === 37 ? leftEdgeIdxs :
       key === 38 ? topEdgeIdxs :
@@ -311,13 +310,16 @@ function handleDirectionChange(key) {
         if (foodIdxs.includes(snakeIdxs[i])) {
           playAnimalSound(cells[snakeIdxs[i]].innerText);
           score++;
+          
           //Increase snake speed according to the score
           if (score % 10 === 0) {
             speed++;
+            drawSpeed(speed);
             time -= 10;
             clearInterval(snakeInterval);
             createSnakeInterval();
-            drawSpeed(speed);
+            
+            
           }
           foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
           cells[snakeIdxs[i]].innerText = "";
