@@ -1,46 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Classic Arcade: Snake </title>
-    <link rel="stylesheet" href="./style.css"></link>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Classic Arcade: Snake </title>
+  <link rel="stylesheet" href="./style.css">
+  </link>
 </head>
+
 <body>
-    <div id="info">Use Keyboard arrows to move: &larr;&rarr;&uarr;&darr;</div>
-<div id="controls">
-  <button id="stop">Stop snake</button>
-  <button id="start">Start snake</button>
-  <button id="reset">Restart</button>
-</div>
-<div id="lose-div">YOU LOSE!</div>
-<div id="info-game">
-  <div id="keys-container">
-    Last Key Pressed:
-    <div id="keys">
-      -
+
+  <div id="options-info-container">
+    <div id="options">
+      <label>
+        <input type="checkbox" name="self-collide" id="self-collide" checked>
+        Enable/Disable Self Collision
+      </label>
+      <label>
+        <input type="checkbox" name="sound" id="sound" checked>
+        Enable/Disable Audio</label>
+      <label>
+        <input type="range" id="volume" min="0" max="1" value="0.5" step="0.1" checked
+          onkeydown="event.preventDefault()">
+        Volume</label>
+      <label>
+        <input type="range" id="speed" min="10" max="150" value="10" step="1" onkeydown="event.preventDefault()">
+        Snake Speed</label>
+    </div>
+    <div id="info-controls-container">
+      <div id="info">Use Keyboard arrows to move: &larr;&rarr;&uarr;&darr;</div>
+      <div id="controls">
+        <button id="stop">Stop snake</button>
+        <button id="start">Start snake</button>
+        <button id="reset">Restart</button>
+      </div>
+    </div>
+    <div id="info-game">
+      <div id="keys-container">
+        Last Key Pressed:
+        <div id="keys">
+          -
+        </div>
+      </div>
+      <div id="score-container">
+        Score:
+        <div id="score">0</div>
+      </div>
+      <div id="speed-container">
+        Speed:
+        <div id="speed">1</div>
+      </div>
     </div>
   </div>
-  <div id="score-container">
-    Score:
-    <div id="score">0</div>
+  <div id="lose-div">
+    <img id="skull" src="./img/skull.gif">
+    <div>YOU LOSE!</div>
   </div>
-  <div id="speed-container">
-    Speed:
-    <div id="speed">1</div>
+  <div id="table-container">
+    <table></table>
+    <div id="footer">Written and designed by: <a href="https://cesare-polonara.netlify.app/">Cesare Polonara</a></div>
   </div>
-</div>
-
-<div id="table-container">
-  <table></table>
-  <div id="footer">Written and designed by: <a href="https://cesare-polonara.netlify.app/">Cesare Polonara</a></div>
-</div>
-<audio id="music" src="./audio/06_-_Vivaldi_Summer_mvt_3_Presto_-_John_Harrison_violin.ogg">
-<audio id="lose" src="./audio/Horror_laugh.ogg">
-<audio id="pig" src="./audio/Pig_grunt_-_Erdie.ogg">
-<audio id="cat" src="./audio/Meow_of_a_Siamese_cat_-_freemaster2.wav">
-<audio id="move" src="./audio/LloydEvans09_-_jump2_%28cc-by%29_%28freesound%29.wav" >
-<script type="text/javascript"src="./index.js"></script>
+  <audio id="music" src="./audio/06_-_Vivaldi_Summer_mvt_3_Presto_-_John_Harrison_violin.ogg">
+    <audio id="lose" src="./audio/Horror_laugh.ogg">
+      <audio id="pig" src="./audio/Pig_grunt_-_Erdie.ogg">
+        <audio id="cat" src="./audio/Meow_of_a_Siamese_cat_-_freemaster2.wav">
+          <audio id="move" src="./audio/LloydEvans09_-_jump2_%28cc-by%29_%28freesound%29.wav">
+            <script type="text/javascript" src="./index.js"></script>
 </body>
-</html>
 
+</html>

@@ -1,4 +1,4 @@
-//Selectors-------------------------------
+//Selectors---------------------------------------------------------
 const buttonStop = document.getElementById("stop");
 const buttonStart = document.getElementById("start");
 const buttonRestart = document.getElementById("reset");
@@ -13,15 +13,25 @@ const loseAudio = document.getElementById("lose");
 const pigAudio = document.getElementById("pig");
 const catAudio = document.getElementById("cat");
 const moveAudio = document.getElementById("move");
-//-------------------------------
+const audioArray = document.querySelectorAll("audio");
+//Options Selectors
+const selfCollideInput = document.getElementById("self-collide");
+const soundInput = document.getElementById("sound");
+const volumeInput = document.getElementById("volume");
+const speedInput = document.getElementById("speed");
+//-------------------------------------------------------------------
 
 let gameState = false;
 let losingState = false;
 let firstStart = true;
+
+//options--------------------------------------------
 let score = 0;
-let scoresAchieved = [];
-let time = 150; //Snake redraw time interval in ms
+let time = 160 - speedInput.value; //Snake redraw time interval in ms
 let speed = 1;
+let selfCollide = true;
+
+//----------------------------------------------------------------------
 const rows = 14;
 const cols = 25;
 const randomCellIdx = () => Math.ceil(Math.random() * rows * cols) - 1;
@@ -60,9 +70,29 @@ let snakeIdxs = [0, 1, 2, 3, 4];
 populateTable(table, rows, cols, "");
 const cells = document.querySelectorAll("td");
 
-//Showing the right buttons
+//Event listeners options input
 //------------------------------------ 
-//document.addEventListeners()
+selfCollideInput.onchange = (ev) => {
+  selfCollide = ev.target.checked;
+}
+
+soundInput.onchange = (ev) => {
+  for (let audio of audioArray)
+    audio.muted = !ev.target.checked;
+}
+
+volumeInput.onchange = (ev) => {
+  for (let audio of audioArray)
+    audio.volume = ev.target.value;
+}
+
+speedInput.onchange = (ev) => {
+  time = 160 - ev.target.value;
+  if (gameState) {
+    clearInterval(snakeInterval);
+    createSnakeInterval();
+  }
+}
 //Event listeners buttons:
 //.....stop:
 buttonStop.onclick = () => {
@@ -75,18 +105,17 @@ buttonStop.onclick = () => {
 };
 //.....start:
 buttonStart.onclick = () => {
-  
   if (gameState || losingState) return;
-  gameState=true;
-  music.play();
   window.addEventListener("keyup", keyUpHandler);
-  if (firstStart){
+  gameState = true;
+  music.play();
+  if (firstStart) {
     firstStart = false;
-  createSnake(snakeLength); //Draw the snake on start
-  //Append the snake to the default starting cells
-for (let i = 0; i < snake.length; i++) {
-  cells[i].appendChild(snake[i]);
-}
+    createSnake(snakeLength); //Draw the snake on start
+    //Append the snake to the default starting cells
+    for (let i = 0; i < snake.length; i++) {
+      cells[i].appendChild(snake[i]);
+    }
   }
   //Start to move the snake
   createSnakeInterval();
@@ -94,29 +123,29 @@ for (let i = 0; i < snake.length; i++) {
 };
 //.....Restart:
 buttonRestart.onclick = () => {
-  loseDiv.style.display="none";
-  tableContainer.style.display="block";
+  window.addEventListener("keyup", keyUpHandler);
+  loseDiv.style.display = "none";
+  tableContainer.style.display = "block";
   losingState = false;
   gameState = true;
   music.currentTime = 0;
   music.play();
   clearInterval(snakeInterval);
   clearInterval(foodInterval);
-  window.addEventListener("keyup", keyUpHandler);
   currentDir = 39;//Reinitialize the default direction
   //Remove all extra snake body parts from cells
-  for ( let i = 0; i < snake.length; i++){
+  for (let i = 0; i < snake.length; i++) {
     cells[snakeIdxs[i]].removeChild(cells[snakeIdxs[i]].firstChild)
   }
   snake = []; //Reset the snake divs array
-  snakeIdxs = [0,1,2,3,4]; // resets the snake indexes
+  snakeIdxs = [0, 1, 2, 3, 4]; // resets the snake indexes
   snakeLength = 5; // resets the snake length
   createSnake(snakeLength);
   //Remove all foods left
   for (let cell of cells)
     cell.innerText = "";
   foodIdxs = []; //Resets food indexes
-  time = 150;
+  time = 160 - speedInput.value;
   score = 0;
   speed = 1;
   drawScore(score);
@@ -144,7 +173,7 @@ const moveSnake = (function () {
 function createSnakeInterval() {
   snakeInterval = setInterval(() => {
     handleDirectionChange(currentDir);
-  },time);
+  }, time);
 }
 
 //---------------------------------------------------------
@@ -198,104 +227,119 @@ function createSnake(length) {
 
 function keyUpHandler(ev) {
   const key = ev.keyCode;
+  if (key !== 37 &&
+    key !== 38 &&
+    key !== 39 &&
+    key !== 40) return;
   console.log(
     "Key pressed:",
     key === 39
       ? "RIGHT"
       : key === 37
-      ? "LEFT"
-      : key === 38
-      ? "UP"
-      : key === 40
-      ? "DOWN"
-      : null
+        ? "LEFT"
+        : key === 38
+          ? "UP"
+          : key === 40
+            ? "DOWN"
+            : null
   );
   keys.innerText =
     key === 39
       ? "RIGHT"
       : key === 37
-      ? "LEFT"
-      : key === 38
-      ? "UP"
-      : key === 40
-      ? "DOWN"
-      : null;
+        ? "LEFT"
+        : key === 38
+          ? "UP"
+          : key === 40
+            ? "DOWN"
+            : null;
   handleDirectionChange(key);
 }
 
 //------------------------------------------------------
 //Main snake moving logic
-function handleDirectionChange(key){
-const edge = key === 39 ? rightEdgeIdxs :
-             key === 37 ? leftEdgeIdxs :
-             key === 38 ? topEdgeIdxs :
-             key === 40 ? bottomEdgeIdxs :
-             null
-const oppositeDir = key === 39 ? 37 :
-             key === 37 ? 39 :
-             key === 38 ? 40 :
-             key === 40 ? 38 :
-             null
- if (currentDir === oppositeDir) return;
-        else {
-            //default moving sound
-            moveAudio.currentTime = 0;
-            moveAudio.play();
+function handleDirectionChange(key) {
+  console.log("Self Collision:", selfCollide);
+  const edge = key === 39 ? rightEdgeIdxs :
+    key === 37 ? leftEdgeIdxs :
+      key === 38 ? topEdgeIdxs :
+        key === 40 ? bottomEdgeIdxs :
+          null
+  const oppositeDir = key === 39 ? 37 :
+    key === 37 ? 39 :
+      key === 38 ? 40 :
+        key === 40 ? 38 :
+          null
+  if (currentDir === oppositeDir) return;
+  else {
+    //default moving sound
+    moveAudio.currentTime = 0;
+    moveAudio.play();
+    currentDir = key; //Global currentDir assignment
+    let previousIdx = 0;
+    let previousIdxTemp = 0;
+    for (let i = snakeLength - 1; i >= 0; i--) {
+      if (i === snakeLength - 1) {
+        //Checks if it's at the edge
+        if (edge.includes(snakeIdxs[i])) {
+          losingState = true;
+          lose.currentTime = 0;
+          lose.play();
+          tableContainer.style.display = "none";
+          loseDiv.style.display = "flex";
+          buttonStop.dispatchEvent(new Event("click"));
+          return;
+        }
+        //Checks if it self collides
+        if (snakeIdxs.slice(0, snakeIdxs.length - 1).includes(snakeIdxs[i]) && selfCollide) {
+          losingState = true;
+          lose.currentTime = 0;
+          lose.play();
+          tableContainer.style.display = "none";
+          loseDiv.style.display = "flex";
+          buttonStop.dispatchEvent(new Event("click"));
+          return;
+        }
+        //Moves the first cell
+        previousIdx = snakeIdxs[i];
+        snakeIdxs[i] = key === 39 ? snakeIdxs[i] + 1 :
+          key === 37 ? snakeIdxs[i] - 1 :
+            key === 38 ? snakeIdxs[i] - cols :
+              key === 40 ? snakeIdxs[i] + cols :
+                null;
+        //Checks if there's food to eat on cell
+        if (foodIdxs.includes(snakeIdxs[i])) {
+          playAnimalSound(cells[snakeIdxs[i]].innerText);
+          score++;
           //Increase snake speed according to the score
-          if (score > 0 && score%10===0 && !scoresAchieved.includes(score)) {
-            scoresAchieved.push(score);
+          if (score % 10 === 0) {
             speed++;
-            time-=10;
+            time -= 10;
             clearInterval(snakeInterval);
             createSnakeInterval();
             drawSpeed(speed);
           }
-          currentDir = key;
-          previousIdx = 0;
-          previousIdxTemp = 0;
-          for (let i = snakeLength - 1; i >= 0; i--) {
-            if (i === snakeLength - 1) {
-              //Checks if it's at the edge
-              if (edge.includes(snakeIdxs[i])) {
-                losingState = true;
-                lose.play();
-               tableContainer.style.display="none";
-                loseDiv.style.display="block";
-                buttonStop.dispatchEvent(new Event("click"));
-                return;
-              }
-            //Moves the first cell
-              previousIdx = snakeIdxs[i];
-              snakeIdxs[i] = key === 39 ? snakeIdxs[i]+1 :
-             key === 37 ? snakeIdxs[i] - 1 :
-             key === 38 ? snakeIdxs[i] - cols :
-             key === 40 ? snakeIdxs[i] + cols :
-             null;
-                //Checks if there's food to eat on cell
-              if (foodIdxs.includes(snakeIdxs[i])) {
-                playAnimalSound(cells[snakeIdxs[i]].innerText);
-                score++;
-                foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
-                cells[snakeIdxs[i]].innerText = "";
-                //Increase snake length
-                snakeLength++;
-                const bodySnakePart = document.createElement("div");
-                bodySnakePart.classList.add("snake");
-                snake.unshift(bodySnakePart);
-                snakeIdxs.unshift(snakeIdxs[0]-1);
-                cells[snakeIdxs[0]].appendChild(snake[0]);
-                //Drawing food and score
-                drawFoodToCells();
-                drawScore(score);
-              }
-            } else {
-              previousIdxTemp = snakeIdxs[i];
-              snakeIdxs[i] = previousIdx;
-              previousIdx = previousIdxTemp;
-            }
-          }
+          foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
+          cells[snakeIdxs[i]].innerText = "";
+          //Increase snake length
+          snakeLength++;
+          const bodySnakePart = document.createElement("div");
+          bodySnakePart.classList.add("snake");
+          snake.unshift(bodySnakePart);
+          snakeIdxs.unshift(snakeIdxs[0] - 1);
+          cells[snakeIdxs[0]].appendChild(snake[0]);
+          //Drawing food and score
+          drawFoodToCells();
+          drawScore(score);
         }
-        moveSnake();
+      } else {
+        previousIdxTemp = snakeIdxs[i];
+        snakeIdxs[i] = previousIdx;
+        previousIdx = previousIdxTemp;
+      }
+    }
+  }
+  moveSnake();
 }
 //UI info function
 //--------------------------------------------------------
@@ -303,13 +347,13 @@ function drawScore(score) {
   scoreDiv.innerText = score;
 }
 //----------------------------------------------------------
-function drawSpeed(speed){
+function drawSpeed(speed) {
   speedDiv.innerText = speed;
 }
 //------------------------------------------------------------
-function playAnimalSound(emoj){
+function playAnimalSound(emoj) {
   console.log(emoj)
- let emojes =  `🐷 🐽 🐸 🐵 🙈 🙉 🙊 🐒 🐔 🐧 🐦 🐤 🐣 🐥 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🕸 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩`.split(' ');
+  let emojes = `🐷 🐽 🐸 🐵 🙈 🙉 🙊 🐒 🐔 🐧 🐦 🐤 🐣 🐥 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🕸 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩`.split(' ');
   emojes.includes(emoj) ? pig.play()
-  : cat.play()
+    : cat.play()
 }
