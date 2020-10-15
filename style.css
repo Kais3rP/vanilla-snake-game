@@ -1,89 +1,133 @@
 @import url("https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap");
 *{
   box-sizing:border-box;
-  margin:0;
-  padding:0;
+  
 }
 
-body{
+html,body{
   margin:0;
   height:100vh;
-  width:100vw;
+  width:100%;
+  overflow-x:hidden;
+}
+body{
   display:flex;
   flex-direction:column;
   justify-content:space-around;
-  align-items:center;
-  background-color:rgba(70,80,10,0.8);
+  align-items:center; 
+  background: rgb(195,117,34);
+  background: linear-gradient(0deg, rgba(195,117,34,1) 1%, rgba(91,253,45,1) 100%);
+  font-family: 'Rock Salt';
+  font-size:14px;
+  
+  
+}
+body::after{
+  width:100%;
+  height:100%;
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
   background-image: url("./img/bg.png");
   background-repeat: no-repeat;
   background-size: cover;
-  font-family: 'Rock Salt';
+  opacity:0.9;
+  
+  
 }
-#info-controls-container{
+a{
+  text-decoration:none;
+  color:white;
+}
+#hamburger{
+  display:none;
+  z-index:1;
+  cursor:pointer;
+  align-self:flex-end;
+}
+#game-container{
+  width:100%;
   height:100%;
   display:flex;
   flex-direction:column;
   justify-content:space-around;
+  align-items:center; 
+ 
+  
+}
+#info-controls-container{
+  
+  position:absolute;
+  top:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
   align-items:center;
+  z-index:1;
+  
 }
 
 #info{
-  background:linear-gradient(rgba(100,50,10,0.5),rgba(70,80,10,0.5));
-  color:white;
-  padding:35px;
-  border: 20px inset violet;
+  background:rgba(255,255,255,0.7);
+  border: 3px outset brown;
   border-radius:20px;
+  color:brown;
+  padding:35px;
+  margin:20px;
+  z-index:1;
 }
 #options-info-container{
   width:98%;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  z-index:1;
 }
 #info-game{
-  width:350px;
-  background:rgba(255,255,255,0.6);
+  
+  background:rgba(255,255,255,0.7);
+  border: 3px outset brown;
+  border-radius:20px;
   display:flex;
   flex-direction:column;
   justify-content:space-around;
-  align-items:center;
+  align-items:flex-start;
   font-weight:bold;
-  border: 20px inset violet;
-  border-radius:20px;
   padding:20px;
 }
 #options{
-  width:350px;
-  background:rgba(255,255,255,0.6);
+  
+  background:rgba(255,255,255,0.7);
+  border: 3px outset brown;
+  border-radius:20px;
   display:flex;
   flex-direction:column;
   justify-content:space-around;
-  align-items:center;
+  align-items:flex-start;
   padding:20px;
-  border: 20px inset violet;
-  border-radius:20px;
+  
 }
 #table-container{ 
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:flex-end;
- 
+  z-index:1;
 }
-table{
-  width:1000px;
-  background:rgba(255,255,255,0.6);
+table{ 
+  background:rgba(255,255,255,0.7);
+  border: 3px outset brown;
   border-radius:20px;
   font-family: Arial;
-  border: 20px inset violet;
   table-layout:fixed;
-  
+  z-index:1;
 }
 td{
-  width:40px;
-  height:40px;
-  border:1px solid rgba(0,0,0,0.02);
-  font-size:25px;
+  width:25px;
+  height:25px;
+border:none;
+  font-size:17px;
   position:relative;
   overflow:hidden;
   text-align:center;
@@ -92,17 +136,16 @@ td{
 .snake{
   width:95%;
   height:95%;
-  background:rgba(70,80,10,1);;
+  background:rgb(162, 230, 25);;
   border: 1px solid green;
   position:absolute;
   top:0;
   left:0;
-  z-index:1;
+  
 }
 
 #controls{
-  width:40%;
-  min-width:400px;
+  width:100%;
   display:flex;
   justify-content:space-around;
   align-items:center;
@@ -110,17 +153,22 @@ td{
 
 button{
   padding:3px;
-  background-color:violet;
-  border:none;
-  border-radius:10px;
+  background:rgb(195,117,34);
+  border: 3px outset white;
+  border-radius:20px;
   color:white;
   width:120px;
   height:60px;
-  font-size:20px;
+  font-size:18px;
   cursor:pointer;
+  text-decoration:none;
+  outline:none;
 }
 button:hover{
   background:rgba(100,50,10,0.8);
+}
+button:active{
+  box-shadow:1px 1px 3px 5px grey;
 }
 
 #lose-div{
@@ -133,6 +181,7 @@ button:hover{
   font-family:Helvetica;
   font-size:80px;
   text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+  z-index:1;
 }
 
 
@@ -140,7 +189,82 @@ button:hover{
   width:200px;
 }
 #footer{
-  width:50%;
   color:grey;
   font-family:Helvetica; 
+  z-index:1;
+}
+
+
+
+@media Screen and (max-width:700px){
+
+    #hamburger{
+      display:flex;
+    }
+
+  #controller{
+    display:flex;
+   
+  }
+  #info-controls-container{   
+  }
+  #controls{
+    width:100%;
+  }
+  #options-info-container{
+    position:absolute;
+    top:-300px;
+    font-size:8px;
+    z-index:3;
+  
+  }
+  #options{
+    background:white;
+  }
+  #info-game{
+    background:white;
+  }
+  #table-container{
+    margin-top:200px;
+  }
+  td{
+    width:25px;
+    height:25px;
+    font-size:15px;
+  }  
+  button{
+    width:80px;
+    height:30px;
+    font-size:10px;
+  }
+
+  #lose-div{
+    width:100%;
+    z-index:2;
+    font-size:20px;
+    margin-top:200px;
+
+  }
+  #skull{
+    width:50%;
+  }
+}
+
+@media Screen and (min-width:800px){
+
+  td{
+    width:30px;
+    height:30px;
+    font-size:20px;
+  }  
+}
+@media Screen and (min-width:1000px){
+table{
+  z-index: 0;
+}
+  td{
+    width:40px;
+    height:40px;
+    font-size:25px;
+  }  
 }

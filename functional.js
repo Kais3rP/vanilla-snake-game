@@ -5,6 +5,9 @@ const buttonRestart = document.getElementById("reset");
 const keysDiv = document.getElementById("keys");
 const scoreDiv = document.getElementById("score");
 const speedDiv = document.getElementById("speed");
+const infoDiv = document.getElementById("info");
+const hamburgerDiv = document.getElementById("hamburger");
+const optionsInfoDiv = document.getElementById("options-info-container");
 const tableContainer = document.getElementById("table-container");
 const table = document.querySelector("table");
 const loseDiv = document.getElementById("lose-div");
@@ -20,20 +23,43 @@ const soundInput = document.getElementById("sound");
 const volumeInput = document.getElementById("volume");
 const speedInput = document.getElementById("speed-input");
 //-------------------------------------------------------------------
+//Info text dynamic mobile/desktop
+const desktopInfo = `Use Keyboard arrows to move: &larr;&rarr;&uarr;&darr;`;
+const mobileInfo = `Tap on the board to move the snake`
+info.innerHTML = checkMedia() ? desktopInfo : mobileInfo;
+window.onresize = () => {
+  console.log("resizing");
+  info.innerHTML = checkMedia() ? desktopInfo : mobileInfo;
+}
+function checkMedia() {
+  return window.matchMedia(`(min-width:700px)`).matches;
+}
 
+hamburgerDiv.onclick = () => {
+  optionsInfoDiv.style.top = isHamburgerOpen ? "-500px" : "50%";
+  isHamburgerOpen = !isHamburgerOpen;
+}
+//------------------------------------------------------------------------------
+//Global state
 let gameState = false;
 let losingState = false;
 let firstStart = true;
+let isHamburgerOpen = false;
 
-//options--------------------------------------------
+//Global snake head coordinates
+//-----------------------------------------------------------
+let headX = 0;
+let headY = 0;
+//Global options--------------------------------------------
 let score = 0;
 let time = 160 - speedInput.value; //Snake redraw time interval in ms
 let speed = 1;
 let selfCollide = true;
 
 //----------------------------------------------------------------------
-const rows = 14;
-const cols = 25;
+//Global table geometry
+const rows = checkMedia() ? 14 : 12;
+const cols = checkMedia() ? 25 : 12;
 const randomCellIdx = () => Math.ceil(Math.random() * rows * cols) - 1;
 //Creating the edges
 //---------------------------------------------------------------------
@@ -93,6 +119,8 @@ speedInput.onchange = (ev) => {
     createSnakeInterval();
   }
 }
+
+
 //Event listeners buttons:
 //.....stop:
 buttonStop.onclick = () => {
@@ -107,6 +135,7 @@ buttonStop.onclick = () => {
 buttonStart.onclick = () => {
   if (gameState || losingState) return;
   window.addEventListener("keyup", keyUpHandler);
+  table.addEventListener("touchstart", touchStartHandler);
   gameState = true;
   music.play();
   if (firstStart) {
@@ -117,6 +146,9 @@ buttonStart.onclick = () => {
       cells[i].appendChild(snake[i]);
     }
   }
+  //Get the coordinates
+  headX = snake[snakeLength - 1].getBoundingClientRect().x;
+  headY = snake[snakeLength - 1].getBoundingClientRect().y;
   //Start to move the snake
   createSnakeInterval();
   createFoodInterval();
@@ -152,6 +184,7 @@ buttonRestart.onclick = () => {
   drawSpeed(speed);
   moveSnake(); // redraws the snake
   //Start to move the snake
+
   createSnakeInterval(); //Start snake auto move
   createFoodInterval();  //Start food generation
 };
@@ -243,7 +276,8 @@ function keyUpHandler(ev) {
             ? "DOWN"
             : null
   );
-  keys.innerText =
+  console.log(keys)
+  keysDiv.innerText =
     key === 39
       ? "RIGHT"
       : key === 37
@@ -253,6 +287,19 @@ function keyUpHandler(ev) {
           : key === 40
             ? "DOWN"
             : null;
+  handleDirectionChange(key);
+}
+
+function touchStartHandler(ev) {
+  console.log("Touched!", "ClientXàHeadX:", ev.touches[0].clientX, headX, "ClientY:", ev.touches[0].clientY, headY)
+  const key = (currentDir === 39 || currentDir === 37) ?
+    ev.touches[0].clientY > headY ?
+      40 :
+      38 :
+    ev.touches[0].clientX > headX ?
+      39 :
+      37
+  console.log(key);
   handleDirectionChange(key);
 }
 
@@ -306,11 +353,14 @@ function handleDirectionChange(key) {
             key === 38 ? snakeIdxs[i] - cols :
               key === 40 ? snakeIdxs[i] + cols :
                 null;
+        //Recalculates the coordinates of the snake head
+        headX = snake[snakeLength - 1].getBoundingClientRect().x;
+        headY = snake[snakeLength - 1].getBoundingClientRect().y;
         //Checks if there's food to eat on cell
         if (foodIdxs.includes(snakeIdxs[i])) {
           playAnimalSound(cells[snakeIdxs[i]].innerText);
           score++;
-          
+
           //Increase snake speed according to the score
           if (score % 10 === 0) {
             speed++;
@@ -318,8 +368,8 @@ function handleDirectionChange(key) {
             time -= 10;
             clearInterval(snakeInterval);
             createSnakeInterval();
-            
-            
+
+
           }
           foodIdxs.splice(foodIdxs.indexOf(snakeIdxs[i]), 1);
           cells[snakeIdxs[i]].innerText = "";

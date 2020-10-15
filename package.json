@@ -1,0 +1,24 @@
+{
+  "name": "snake-vanilla",
+  "version": "1.0.0",
+  "description": "A revisitation of snake arcade game",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kais3rP/vanilla-snake-game.git"
+  },
+  "author": "Cesare Polonara",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kais3rP/vanilla-snake-game/issues"
+  },
+  "homepage": "https://vanilla-snake.netlify.app/",
+  "dependencies": {},
+  "devDependencies": {
+    "webpack": "^5.1.1",
+    "webpack-cli": "^4.0.0"
+  }
+}
